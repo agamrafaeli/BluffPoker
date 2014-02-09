@@ -16,7 +16,6 @@ class Deck:
 		random.shuffle(cards,random.random)
 		self.cards = cards
 
-
 	def dealCard(self):
 		dealtCard = self.cards.pop()
 		return dealtCard
