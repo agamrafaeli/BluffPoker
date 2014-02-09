@@ -1,5 +1,6 @@
 import random
 
+
 class Deck:
 
     def suits(self):
