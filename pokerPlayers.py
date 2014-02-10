@@ -66,3 +66,74 @@ class bigMouthPlayer(pokerPlayer):
 		for i in xrange(1,self.challengedCounter):
 			challengeProbability += (1.0/j) - (1.0/(j+1.0))
 		return random.random() <= challengeProbability
+
+
+class humanPlayer(pokerPlayer):
+
+	def __init(self,name):
+		super(bigMouthPlayer,self).__init__(name)
+		print "Created human player named "+self.name
+
+	def announce(self,game):
+		self.printStats(game)
+
+		print "To select:"
+		print "0 for high card.\t 1 for pair. \t\t2 for two pairs."
+		print "3 for triplets.\t\t 4 for straight.\t5 for full house."
+		print "6 for quad."
+		typeOfHand = int(raw_input("Type of hand you are announcing: "))
+		secondQuestionFlag = False
+		if typeOfHand == 0:
+			value = int(raw_input("High card at what level? "))
+			return [(value,1)]
+		if typeOfHand == 1:
+			value = int(raw_input("A pair of what? "))
+			return [(value,2)]
+		if typeOfHand == 2:
+			firstValue = int(raw_input("The first pair is of what value? "))
+			secondValue = int(raw_input("And the second pair? "))
+			return [(firstValue,2),(secondValue,2)]
+		if typeOfHand == 3:
+			value = int(raw_input("The triplets are of what value? "))
+			return [(value,3)]
+		if typeOfHand == 4:
+			value = int(raw_input("What is the highest value of the straight? "))
+			return [(value-4,1),(value-3,1),(value-2,1),(value-1,1),(value,1)]
+		if typeOfHand == 5:
+			firstValue = int(raw_input("What value are the triplets? "))
+			secondValue = int(raw_input("And what value is the pair? "))
+			return [(firstValue,3),(secondValue,2)]
+		if typeOfHand == 6:
+			value = int(raw_input("What value is the quad?"))
+			return [(value,4)]
+
+
+		print "###################ERROR###################"
+		print "BAD TYPE OF HAND ENTERED"
+		raw_input("Ctrl+c to break the program")
+
+	def printStats(self,game):
+		print "#######################"
+		playerStatLine = ""
+		for player in game.players:
+			playerStatLine += player.name+": "+str(player.cardsLeft)+"\t\t"
+		print "Cards left in hands of other players:"
+		print playerStatLine
+		print "Your cards are:"
+		cardLine = ""
+		for card in self.cardsInHand:
+			cardLine += str(card[0])+" of "+card[1]+"s,"
+		print cardLine
+		#TODO: Need to add current hand
+
+	def challenge(self,game):
+		self.printStats(game)
+
+		print "Are you challenging this current hand?"
+		print "1 for YES. \tSomething else for no:\t"
+		value = int(raw_input(""))
+		if value == 1:
+			return True
+		return False
+
+
