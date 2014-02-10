@@ -101,24 +101,19 @@ def initHandsOptions():
 def printHandOptions():
     print initOptions()
 
-def standOff(cardsOnTable,anouncement):
+def standOff(cardsOnTable,announcement):
 
-    for combination in anouncement:
+    for combination in announcement:
         ifCombinationExists = False
         val = combination[0]
         amountOfVal = combination[1]
-        for playerCardsInTheGame in cardsOnTable:
-            for card in playerCardsInTheGame:
-                if card[0] == val:
-                    amountOfVal = amountOfVal - card[1]
-                    if amountOfVal <= 0:
-                        ifCombinationExists = True
+        for card in cardsOnTable:
+            if card[0] == val:
+                amountOfVal = amountOfVal - card[1]
+            if amountOfVal <= 0:
+                ifCombinationExists = True
         if (ifCombinationExists):
             continue
         else:
             return False
     return True
-
-cardsOnTable = ([(2,2),(3,2)],[(6,1),(7,1),(8,1),(9,1),(10,1)])
-print standOff(cardsOnTable,([(2,2),(3,3)]))
-# print standOff(cardsOnTable,([[2,3]]))
