@@ -10,6 +10,7 @@ def initOptions():
     theDeck = Deck()
 
     #HighCard
+    handsOptions.extend(getAllHighCards(theDeck.numbers()))
 
 
     #ZUG
@@ -17,7 +18,7 @@ def initOptions():
     #13
 
     #ZUGAIM
-    handsOptions.extend(getAllDoublePair(handsOptions))
+    handsOptions.extend(getAllDoublePair(getAllPairs(theDeck.numbers())))
     #78
 
     #Triple
@@ -38,16 +39,22 @@ def initOptions():
 
     return handsOptions
 
+def getAllHighCards(numbersInDeck):
+    highCardsList = []
+    for num in numbersInDeck:
+        highCardsList.append([(num,1)])
+    return highCardsList
+
 def getAllPairs(numbersInDeck):
     pairs=[]
     for pairNumber in numbersInDeck:
-        pairs.append([pairNumber,pairNumber])
+        pairs.append([(pairNumber,2)])
     return pairs
 
 def getAllTriplets(numbersInDeck):
     triplets=[]
     for tripNumber in numbersInDeck:
-        triplets.append([tripNumber,tripNumber,tripNumber])
+        triplets.append([(tripNumber,3)])
     return triplets
 
 def getAllDoublePair(allSinglePairs):
@@ -56,13 +63,16 @@ def getAllDoublePair(allSinglePairs):
     for firstPair in allSinglePairs:
         secondPairOptions.remove(firstPair)
         for secondPair in secondPairOptions:
-            doublePairList.append(firstPair+secondPair)
+            singleDoubleTemp = []
+            singleDoubleTemp.extend(firstPair)
+            singleDoubleTemp.extend(secondPair)
+            doublePairList.append(singleDoubleTemp)
     return doublePairList
 
 def getAllStraightOptions(numbersInDeck):
     straightList=[]
     for firstNum in xrange(2,11):
-        straightList.append([firstNum,firstNum+1,firstNum+2,firstNum+3,firstNum+4])
+        straightList.append([(firstNum,1),(firstNum+1,1),(firstNum+2,1),(firstNum+3,1),(firstNum+4,1)])
     return straightList
 
 def getAllFullHouseOptions(pairOptions, tripleOptions):
@@ -71,13 +81,16 @@ def getAllFullHouseOptions(pairOptions, tripleOptions):
         for triple in tripleOptions:
             if pair[0] == triple[0]:
                 continue
-            fullHouseList.append(pair + triple)
+            singleFullHouseTuple = []
+            singleFullHouseTuple.extend(pair)
+            singleFullHouseTuple.extend(triple)
+            fullHouseList.append(singleFullHouseTuple)
     return fullHouseList
 
 def getAllFoursome(numbersInDeck):
     foursomeList = []
     for num in numbersInDeck:
-        foursomeList.append([num,num,num,num])
+        foursomeList.append((num,4))
     return foursomeList
 
 
@@ -105,6 +118,8 @@ def standOff(cardsOnTable,anouncement):
             return False
     return True
 
+print initHandsOptions()
+
 cardsOnTable = ([2,2,2,3,4],[6,7,8,9,10,11])
-# print standOff(handsOptions,((2,4),(3,2)))
-print standOff(cardsOnTable,([[2,3]]))
+print standOff(initHandsOptions(),((2,4),(3,2)))
+# print standOff(cardsOnTable,([[2,3]]))
