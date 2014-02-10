@@ -1,6 +1,6 @@
-import random
+import random, poker
 from deck import Deck
-from poker import testHand
+
 
 class Game:
 
@@ -8,13 +8,15 @@ class Game:
 
 		self.players = []
 		for player in playerArr:
-			newPlayer = dict()
+			newPlayer =
 			newPlayer['name'] = player['name']
 			newPlayer['agent'] = player['agent']
 			newPlayer['numCards'] = 5
 			newPlayer['currentHand'] = None
 			self.players.append(newPlayer)
 		random.shuffle(self.players,random.random)
+
+		self.optionalHands = poker.optionalHands()
 		self.currentHand = None
 		winner = 0
 		while self.noWinner():
