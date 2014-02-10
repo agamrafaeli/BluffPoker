@@ -90,7 +90,7 @@ def getAllFullHouseOptions(pairOptions, tripleOptions):
 def getAllFoursome(numbersInDeck):
     foursomeList = []
     for num in numbersInDeck:
-        foursomeList.append((num,4))
+        foursomeList.append([(num,4)])
     return foursomeList
 
 
@@ -102,15 +102,16 @@ def printHandOptions():
     print initOptions()
 
 def standOff(cardsOnTable,anouncement):
+
     for combination in anouncement:
         ifCombinationExists = False
         val = combination[0]
         amountOfVal = combination[1]
-        for palyerCardsIntheGame in cardsOnTable:
-            for card in palyerCardsIntheGame:
-                if card == type :
-                    amountOfVal = amountOfVal-1
-                    if amountOfVal==0:
+        for playerCardsInTheGame in cardsOnTable:
+            for card in playerCardsInTheGame:
+                if card[0] == val:
+                    amountOfVal = amountOfVal - card[1]
+                    if amountOfVal <= 0:
                         ifCombinationExists = True
         if (ifCombinationExists):
             continue
@@ -118,8 +119,6 @@ def standOff(cardsOnTable,anouncement):
             return False
     return True
 
-print initHandsOptions()
-
-cardsOnTable = ([2,2,2,3,4],[6,7,8,9,10,11])
-print standOff(initHandsOptions(),((2,4),(3,2)))
+cardsOnTable = ([(2,2),(3,2)],[(6,1),(7,1),(8,1),(9,1),(10,1)])
+print standOff(cardsOnTable,([(2,2),(3,3)]))
 # print standOff(cardsOnTable,([[2,3]]))
