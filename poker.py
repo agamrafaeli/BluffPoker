@@ -13,10 +13,13 @@ def initOptions():
         singleNum.append(num)
         numOptions = list(product(singleNum,theDeck.suits()))
         pairs = createDouble(numOptions)
+        handsOptions.extend(pairs)
 
-        #ZUGAIM
-        tmp = list (pairs)
-        for couple in pairs:
+
+    allpairs = list (handsOptions)
+    #ZUGAIM
+    tmp = list (allpairs)
+    for couple in allpairs:
             tmp.remove(couple)
             for couple1 in tmp:
                 #no need to add this
@@ -25,23 +28,27 @@ def initOptions():
                 zugaim = (couple + couple1)
                 handsOptions.append(zugaim)
 
-        triplets= createTriplets(num,theDeck.suits())
-
-        #full House
-        for couple in pairs:
-            for trip in triplets:
-                #no need to add this
-                if (couple[0][0] == trip[0][0]):
-                    continue
-                t = (couple + trip)
-                handsOptions.append(t)
-
-        handsOptions.extend(pairs)
+    for num in theDeck.numbers():
+        triplets=[]
+        triplets.extend(createTriplets(num,theDeck.suits()))
         handsOptions.extend(triplets)
+
+    createStright(theDeck)
+
+    #full House
+    for couple in allpairs:
+        for trip in triplets:
+            #no need to add this
+            if (couple[0][0] == trip[0][0]):
+                continue
+            t = (couple + trip)
+            handsOptions.append(t)
+
+    for num in theDeck.numbers():
         createFoursom(num,theDeck.suits())
 
-    # createFlush(theDeck)
-    createStright(theDeck)
+    # # createFlush(theDeck)
+
 
 
 
@@ -122,7 +129,7 @@ def standOff(cardsOnTable,handToCheck):
             return False
     return True
 
-print handsOptions
+printHandsOptions()
 cardsOnTable = (((12, 'Heart'), (12, 'Spade'), (5, 'Heart'), (5, 'Spade'), (5, 'Clover')),
                 ((13, 'Heart'), (13, 'Spade'), (4, 'Heart'), (4, 'Spade'), (4, 'Clover')))
 
