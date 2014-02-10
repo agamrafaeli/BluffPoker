@@ -2,136 +2,109 @@ __author__ = 'aliveanu'
 from deck import Deck
 
 
-handsOptions=[]
+
 
 
 def initOptions():
+    handsOptions=[]
     theDeck = Deck()
-    from itertools import product
-    for num in theDeck.numbers():
-        singleNum=[]
-        singleNum.append(num)
-        numOptions = list(product(singleNum,theDeck.suits()))
-        pairs = createDouble(numOptions)
-        handsOptions.extend(pairs)
+
+    #HighCard
 
 
-    allpairs = list (handsOptions)
+    #ZUG
+    handsOptions.extend(getAllPairs(theDeck.numbers()))
+    #13
+
     #ZUGAIM
-    tmp = list (allpairs)
-    for couple in allpairs:
-            tmp.remove(couple)
-            for couple1 in tmp:
-                #no need to add this
-                if (couple[0][0] == couple1[0][0]):
-                    continue
-                zugaim = (couple + couple1)
-                handsOptions.append(zugaim)
+    handsOptions.extend(getAllDoublePair(handsOptions))
+    #78
 
-    for num in theDeck.numbers():
-        triplets=[]
-        triplets.extend(createTriplets(num,theDeck.suits()))
-        handsOptions.extend(triplets)
+    #Triple
+    handsOptions.extend(getAllTriplets(theDeck.numbers()))
+    #13
 
-    createStright(theDeck)
+    #straight
+    handsOptions.extend(getAllStraightOptions(theDeck.numbers()))
+    #9
+
 
     #full House
-    for couple in allpairs:
-        for trip in triplets:
-            #no need to add this
-            if (couple[0][0] == trip[0][0]):
-                continue
-            t = (couple + trip)
-            handsOptions.append(t)
+    handsOptions.extend(getAllFullHouseOptions(getAllPairs(theDeck.numbers()),getAllTriplets(theDeck.numbers())))
+    #156
 
-    for num in theDeck.numbers():
-        createFoursom(num,theDeck.suits())
+    #foursome
+    handsOptions.extend(getAllFoursome(theDeck.numbers()))
 
-    # # createFlush(theDeck)
-
-
-
-
-def createDouble(cardOptions):
-    pairs = []
-    c1 = list(cardOptions)
-    for card in cardOptions:
-        c1.remove(card);
-        for card2 in c1:
-            if card[0]==card2[0]:
-                if card[1] !=card2[1]:
-                    pairs.append((card,card2))
-
-    return pairs
-
-
-def createTriplets(num,suites):
-    triplets= []
-    triplets.append(((num,suites[0]),(num,suites[1]),(num,suites[2])))
-    triplets.append(((num,suites[0]),(num,suites[1]),(num,suites[3])))
-    triplets.append(((num,suites[0]),(num,suites[2]),(num,suites[3])))
-    triplets.append(((num,suites[1]),(num,suites[2]),(num,suites[3])))
-    return triplets
-
-def createFoursom(num,suites):
-    handsOptions.append(((num,suites[0]),(num,suites[1]),(num,suites[2]),(num,suites[3])))
-
-def createFlush(theDeck):
-    for suite in theDeck.suits():
-        handsOptions.append(((10,suite),(11,suite),(12,suite),(13,suite),(14,suite)))
-
-def createStright(theDeck):
-    a=[]
-    b=[]
-    for suite in theDeck.suits():
-        for suite1 in theDeck.suits():
-            for suite2 in theDeck.suits():
-                for suite3 in theDeck.suits():
-                    for suite4 in theDeck.suits():
-                            for num in xrange(2,11):
-                                a.append(((num,suite),(num+1,suite1),(num+2,suite2),(num+3,suite3),(num+4,suite4)))
-                                b.extend(a)
-                                a=[]
-        for num in xrange(2,11):
-            b.remove(((num,suite),(num+1,suite),(num+2,suite),(num+3,suite),(num+4,suite)))
-
-    handsOptions.extend(b)
-
-def getHandsOptions():
     return handsOptions
 
+def getAllPairs(numbersInDeck):
+    pairs=[]
+    for pairNumber in numbersInDeck:
+        pairs.append([pairNumber,pairNumber])
+    return pairs
+
+def getAllTriplets(numbersInDeck):
+    triplets=[]
+    for tripNumber in numbersInDeck:
+        triplets.append([tripNumber,tripNumber,tripNumber])
+    return triplets
+
+def getAllDoublePair(allSinglePairs):
+    doublePairList = []
+    secondPairOptions = list (allSinglePairs)
+    for firstPair in allSinglePairs:
+        secondPairOptions.remove(firstPair)
+        for secondPair in secondPairOptions:
+            doublePairList.append(firstPair+secondPair)
+    return doublePairList
+
+def getAllStraightOptions(numbersInDeck):
+    straightList=[]
+    for firstNum in xrange(2,11):
+        straightList.append([firstNum,firstNum+1,firstNum+2,firstNum+3,firstNum+4])
+    return straightList
+
+def getAllFullHouseOptions(pairOptions, tripleOptions):
+    fullHouseList =[]
+    for pair in pairOptions:
+        for triple in tripleOptions:
+            if pair[0] == triple[0]:
+                continue
+            fullHouseList.append(pair + triple)
+    return fullHouseList
+
+def getAllFoursome(numbersInDeck):
+    foursomeList = []
+    for num in numbersInDeck:
+        foursomeList.append([num,num,num,num])
+    return foursomeList
+
+
+
 def initHandsOptions():
-    initOptions()
+    return initOptions()
 
-def printHandsOptions():
-    for hand in handsOptions:
-        print hand
+def printHandOptions():
+    print initOptions()
 
-def printHandsNum():
-    print len(handsOptions)
-
-initHandsOptions()
-
-def standOff(cardsOnTable,handToCheck):
-    for hand in handToCheck:
-        flag = False
-        type = hand[0]
-        num = hand[1]
-        for handOption in cardsOnTable:
-            for card in handOption:
-                if card[0] == type :
-                    num = num-1
-                    if num==0:
-                        flag = True
-        if (flag):
+def standOff(cardsOnTable,anouncement):
+    for combination in anouncement:
+        ifCombinationExists = False
+        val = combination[0]
+        amountOfVal = combination[1]
+        for palyerCardsIntheGame in cardsOnTable:
+            for card in palyerCardsIntheGame:
+                if card == type :
+                    amountOfVal = amountOfVal-1
+                    if amountOfVal==0:
+                        ifCombinationExists = True
+        if (ifCombinationExists):
             continue
         else:
             return False
     return True
 
-printHandsOptions()
-cardsOnTable = (((12, 'Heart'), (12, 'Spade'), (5, 'Heart'), (5, 'Spade'), (5, 'Clover')),
-                ((13, 'Heart'), (13, 'Spade'), (4, 'Heart'), (4, 'Spade'), (4, 'Clover')))
-
+cardsOnTable = ([2,2,2,3,4],[6,7,8,9,10,11])
 # print standOff(handsOptions,((2,4),(3,2)))
-# print standOff(cardsOnTable,[(13,3)])
+print standOff(cardsOnTable,([[2,3]]))
