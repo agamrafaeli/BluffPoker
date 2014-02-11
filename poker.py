@@ -60,8 +60,8 @@ class Poker:
             secondPairOptions.remove(firstPair)
             for secondPair in secondPairOptions:
                 singleDoubleTemp = []
-                singleDoubleTemp.extend(firstPair)
                 singleDoubleTemp.extend(secondPair)
+                singleDoubleTemp.extend(firstPair)
                 doublePairList.append(singleDoubleTemp)
         return doublePairList
 
@@ -75,11 +75,11 @@ class Poker:
         fullHouseList =[]
         for pair in pairOptions:
             for triple in tripleOptions:
-                if pair[0] == triple[0]:
+                if pair[0][0] == triple[0][0]:
                     continue
                 singleFullHouseTuple = []
-                singleFullHouseTuple.extend(pair)
                 singleFullHouseTuple.extend(triple)
+                singleFullHouseTuple.extend(pair)
                 fullHouseList.append(singleFullHouseTuple)
         return fullHouseList
 
@@ -167,4 +167,6 @@ class Poker:
 
 
 
+p = Poker()
 
+print p.initHandsOptions()
