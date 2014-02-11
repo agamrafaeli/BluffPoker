@@ -8,7 +8,6 @@ class Game:
 
 	def __init__(self,playerArr):
 		# STARTING GAME
-		self.currentAnnouncedHand=[]
 		self.pokerRules = Poker()
 
 		# CREATING PLAYERS
@@ -71,14 +70,14 @@ class Game:
 				player.recieveCard(theDeck.dealCard())
 			print player.name+"'s cards are:\t"+str(player.cardsInHand)
 
-
+		self.currentAnnouncedHand=[]
 
 
 		announcingPlayerIndex = startingPlayerIndex
 		stillAnnouncing = True
 		while stillAnnouncing:
 			#ANNOUNCEMENT
-			raw_input(self.players[announcingPlayerIndex].name+" will announce now:")
+			print self.players[announcingPlayerIndex].name+" will announce now:"
 			self.currentAnnouncedHand = self.players[announcingPlayerIndex].announce(self)
 			print "He has announced: "+str(self.currentAnnouncedHand)
 			self.firstChallenger = True
@@ -87,7 +86,7 @@ class Game:
 				if self.players[challengingPlayerIndex].cardsLeft == 0:
 					#PLAYER NOT IN GAME ANYMORE
 					continue
-				raw_input(self.players[challengingPlayerIndex].name+" is deciding whether to challenge now:")
+				print self.players[challengingPlayerIndex].name+" is deciding whether to challenge now:"
 				if self.players[challengingPlayerIndex].challenge(self):	#CHALLENGE
 					# print self.players[challengingPlayerIndex].name+" has challenged"
 					stillAnnouncing = False
@@ -119,13 +118,17 @@ class Game:
 		print "There will be a standoff now between:"
 		print "Announcer:\t"+self.players[announcingPlayerIndex].name
 		print "Challenger:\t"+self.players[challengingPlayerIndex].name
-		raw_input("Hand:\t"+str(self.currentAnnouncedHand))
+		print "Hand:\t"+str(self.currentAnnouncedHand)
 		if self.pokerRules.standOff(cardsOnTable,self.currentAnnouncedHand):		#STANDOFF!!
 			self.players[challengingPlayerIndex].cardsLeft -= 1
 			print "The hand was on the table"
 		else:
 			self.players[announcingPlayerIndex].cardsLeft -= 1
 			print "The bluff was exposed"
+
+		# reset player settings
+		for player in self.players:
+			player.resetSettings()
 		raw_input("")
 
 
