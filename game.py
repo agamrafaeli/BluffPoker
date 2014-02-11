@@ -1,12 +1,15 @@
 import random, poker
 from deck import Deck
 from pokerPlayers import pokerPlayerFactory
+from poker import Poker
 
 
 class Game:
 
 	def __init__(self,playerArr):
 		# STARTING GAME
+
+		self.pokerRules = Poker()
 
 		# CREATING PLAYERS
 		playerFactory = pokerPlayerFactory()
@@ -24,6 +27,7 @@ class Game:
 		for player in self.players:
 			playerOrder.append(player.name)
 		print "PLAYER ORDER WILL BE "+str(playerOrder)
+
 
 		# ACTUAL GAMEPLAY
 		roundNum = 0
@@ -67,6 +71,8 @@ class Game:
 			for i in xrange(player.cardsLeft):
 				player.recieveCard(theDeck.dealCard())
 
+
+
 		announcingPlayerIndex = startingPlayerIndex
 		stillAnnouncing = True
 		while stillAnnouncing:
@@ -89,10 +95,21 @@ class Game:
 				while self.players[announcingPlayerIndex].cardsLeft == 0:
 					announcingPlayerIndex = (announcingPlayerIndex + 1) % len(self.players)
 
+		cardsOnTable = []
 
-		#Add info for standoff
+		for player in self.players:
+			for cardFromPlayer in player.playersHand:
+				existOnTable = False
+				for cardOnTable in cardsOnTable:
+					if cardFromPlayer[0] == cardOnTable[0]:
+						cardOnTable[1] += cardFromPlayer[1]
+						existOnTable = True
 
-		if poker.standOff(announcedHand) <= 0.5:		#STANDOFF!!
+				if not existOnTable:
+					cardsOnTable.append(cardFromPlayer)
+
+
+		if self.pokerRules.standOff(cardsOnTable,announcedHand):		#STANDOFF!!
 			self.players[challengingPlayerIndex].cardsLeft -= 1
 		else:
 			self.players[announcingPlayerIndex].cardsLeft -= 1
