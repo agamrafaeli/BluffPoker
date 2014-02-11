@@ -90,7 +90,9 @@ class Game:
 					announcingPlayerIndex = (announcingPlayerIndex + 1) % len(self.players)
 
 
-		if random.random() <= 0.5:		#STANDOFF!!
+		#Add info for standoff
+
+		if poker.standOff(announcedHand) <= 0.5:		#STANDOFF!!
 			self.players[challengingPlayerIndex].cardsLeft -= 1
 		else:
 			self.players[announcingPlayerIndex].cardsLeft -= 1
