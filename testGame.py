@@ -7,5 +7,5 @@ players.append(["Bob","CAUTIOUS_BLUFFER"])
 players.append(["George","CAUTIOUS_BLUFFER"])
 players.append(["Bill","CAUTIOUS_BLUFFER"])
 
-theGame = Game(players)
+theGame = Game(players,False)
 

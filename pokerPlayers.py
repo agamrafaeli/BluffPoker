@@ -8,7 +8,7 @@ class pokerPlayerFactory(object):
 		# if playerType == "BIG_MOUTH": 			return bigMouthPlayer(name)
 		if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
 		if playerType == "HUMAN":				return humanPlayer(name)
-		# if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
+		if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
 		# if playerType == "LEARNING_PLAYER":		return learningPlayer(name)
 
 
@@ -129,9 +129,10 @@ class cautiousBlufferPlayer(pokerPlayer):
 		probability = self.challengeProbability
 		if not game.firstChallenger:
 			probability = probability * 0.1
-		print "probability to challenge now is: "+str(probability)
 		randomNum = random.random()
-		print "random number is: "+str(randomNum)
+
+		game.debugMessage("probability to challenge now is: "+str(probability))
+		game.debugMessage("random number is: "+str(randomNum))
 		return  randomNum <= probability
 
 	def resetSettings(self):
@@ -206,4 +207,26 @@ class humanPlayer(pokerPlayer):
 					   return True
 			   return False
 
-class
+class heuristicPlayer(pokerPlayer):
+
+	def announce(self,game):
+		return []
+
+	def challenge(self,game):
+
+		numCardsInAnnouncedHand = 0
+		for condition in game.currentAnnouncedHand:
+			numCardsInAnnouncedHand += condition[1]
+
+		numCardsAnnouncingPlayerHas = len(game.players[game.announcingPlayerIndex])
+		numCardsIHave = len(self.cardsInHand)
+
+		#If the current hand requires more cards than are in play then challenges
+		if numCardsInAnnouncedHand > game.getNumOfCardsInPlay():
+			return True
+
+		#If announced hand requires more cards than announcing player has
+		#	and
+
+
+
