@@ -6,7 +6,7 @@ class pokerPlayerFactory(object):
     def newPokerPlayer(self,name,playerType):
         if playerType == "CONSERVATIVE": 		return ultraConservativePlayer(name)
         if playerType == "BIG_MOUTH": 			return bigMouthPlayer(name)
-        # if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
+        if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
         if playerType == "HUMAN":				return humanPlayer(name)
         # if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
         # if playerType == "LEARNING_PLAYER":		return learningPlayer(name)
@@ -20,15 +20,6 @@ class pokerPlayer(object):
         self.name = name;
         self.lowestHand = None
         self.highestHand = None
-        self.currentAnnouncedHand=[]
-
-
-
-    def getCurrentAnnouncedHand(self):
-        return  self.currentAnnouncedHand
-
-    def setCurrentAnnouncedHAnd(self, hand):
-        self.currentAnnouncedHand = hand
 
     def hasHand(self,hand):
         for demand in hand:
@@ -96,28 +87,28 @@ class bigMouthPlayer(pokerPlayer):
 
 class ultraConservativePlayer(pokerPlayer):
 
-    #works with certain and challenges if last anouncement is better then his best certain hand
+    #works with certain hands
+    #challenges if last anouncement is better than his best certain hand
 
     def __init__(self,name):
         super(ultraConservativePlayer,self).__init__(name)
         print "Created ultra Conservative Player named "+self.name
-        self.challengedCounter = 0
 
     def announce(self,game):
-        poker = Poker()
-        handToAnnounce = poker.getBestWeakestHandToAnnounce(poker.myCertainHands(),self.getCurrentAnnouncedHand())
-        return handToAnnounce
+        myCertainHands = game.pokerRules.myCertainHands(self.playersHand)
+        currentAnnouncedHand = game.currentAnnouncedHand
+        return game.pokerRules.getBestWeakestHandToAnnounce(myCertainHands,currentAnnouncedHand)
 
     def challenge(self,game):
-        handAnnounced = self.getCurrentAnouncedHand()
-        poker = Poker()
-        highestAvailableHand = poker.myCertainHands()[len(game.getRemainingHands()-1)]
-        if poker.handStandoff(handAnnounced,highestAvailableHand):
-            #The player will not challenge because he is certain to have a hand in hand that
-            # is stronger then what was announced
-            return False
-        self.challengedCounter += 1
-        return True
+        handAnnounced = game.currentAnnouncedHand
+        highestAvailableHand = game.pokerRules.myCertainHands(self.playersHand)[-1]
+        if game.pokerRules.handStandoff(highestAvailableHand,handAnnounced):
+        	if game.firstChallenger:
+	            #The player will not challenge
+	            #this is because he is certain to have a hand that
+	            # is stronger then what was announced
+	            return True
+        return False
 
 
 

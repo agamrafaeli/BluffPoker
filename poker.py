@@ -152,8 +152,9 @@ class Poker:
 
 #Which hand is stronger = What hand can create the strongest combination
     def handStandoff(self,hand1,hand2):
-        if self.getHandStrength(self.getStrongestHandFromHand(hand1)) < \
-                self.getHandStrength(self.getStrongestHandFromHand(hand2)):
+        hand1Power = self.getHandStrength(self.getStrongestHandFromHand(hand1))
+        hand2Power = self.getHandStrength(self.getStrongestHandFromHand(hand2))
+        if  hand1Power < hand2Power:
             return True
         return False
 
@@ -163,10 +164,8 @@ class Poker:
         for hand in listOfCertainHands:
             if self.getHandStrength(hand) > self.getHandStrength(handToBeat):
                 return hand
-        return ([()])
-p = Poker()
+        return []
 
-print p.getBestWeakestHandToAnnounce(p.myCertainHands([(6,2),(7,3)]),[(6,1)])
 
 
 
