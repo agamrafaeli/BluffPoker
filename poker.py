@@ -35,25 +35,25 @@ class Poker:
 
         return handsOptions
 
-    def getAllHighCards(numbersInDeck):
+    def getAllHighCards(self,numbersInDeck):
         highCardsList = []
         for num in numbersInDeck:
             highCardsList.append([(num,1)])
         return highCardsList
 
-    def getAllPairs(numbersInDeck):
+    def getAllPairs(self,numbersInDeck):
         pairs=[]
         for pairNumber in numbersInDeck:
             pairs.append([(pairNumber,2)])
         return pairs
 
-    def getAllTriplets(numbersInDeck):
+    def getAllTriplets(self,numbersInDeck):
         triplets=[]
         for tripNumber in numbersInDeck:
             triplets.append([(tripNumber,3)])
         return triplets
 
-    def getAllDoublePair(allSinglePairs):
+    def getAllDoublePair(self,allSinglePairs):
         doublePairList = []
         secondPairOptions = list (allSinglePairs)
         for firstPair in allSinglePairs:
@@ -65,13 +65,13 @@ class Poker:
                 doublePairList.append(singleDoubleTemp)
         return doublePairList
 
-    def getAllStraightOptions(numbersInDeck):
+    def getAllStraightOptions(self,numbersInDeck):
         straightList=[]
         for firstNum in xrange(2,11):
             straightList.append([(firstNum,1),(firstNum+1,1),(firstNum+2,1),(firstNum+3,1),(firstNum+4,1)])
         return straightList
 
-    def getAllFullHouseOptions(pairOptions, tripleOptions):
+    def getAllFullHouseOptions(self,pairOptions, tripleOptions):
         fullHouseList =[]
         for pair in pairOptions:
             for triple in tripleOptions:
@@ -83,7 +83,7 @@ class Poker:
                 fullHouseList.append(singleFullHouseTuple)
         return fullHouseList
 
-    def getAllFoursome(numbersInDeck):
+    def getAllFoursome(self,numbersInDeck):
         foursomeList = []
         for num in numbersInDeck:
             foursomeList.append([(num,4)])
@@ -97,7 +97,7 @@ class Poker:
     def printHandOptions(self):
         print self.initOptions()
 
-    def standOff(cardsOnTable,announcement):
+    def standOff(self,cardsOnTable,announcement):
 
         for combination in announcement:
             ifCombinationExists = False
@@ -113,3 +113,60 @@ class Poker:
             else:
                 return False
         return True
+
+    def myCertainHands(self,hand):
+        certainHandsList = []
+        for optionalHand in self.initHandsOptions():
+            if (self.standOff(hand,optionalHand)):
+                certainHandsList.append(optionalHand)
+        return certainHandsList
+
+    def isOptionalHAnd(self,hand,optionalHand):
+        for cardInHand in hand:
+            for cardInOptionalHand in optionalHand:
+                if cardInHand[0]==cardInOptionalHand[0]:
+                    return True
+
+    def myOptionalHands(self,hand):
+        optionalHandsList = []
+        for optionalHand in self.initHandsOptions():
+            if (self.isOptionalHAnd(hand,optionalHand)):
+                optionalHandsList.append(optionalHand)
+        print optionalHandsList
+        return optionalHandsList
+
+#returns the actual possible strongest hand
+    def getStrongestHandFromHand(self,hand):
+        handCertainHands = self.myCertainHands(hand)
+        return handCertainHands[len(handCertainHands)-1]
+
+
+#return int value (strength) of the hand
+    def getHandStrength(self,hand):
+        count = 1
+        for handToCheck in self.initHandsOptions():
+            if hand==handToCheck:
+                return count
+            count += 1
+
+
+#Which hand is stronger = What hand can create the strongest combination
+    def handStandoff(self,hand1,hand2):
+        if self.getHandStrength(self.getStrongestHandFromHand(hand1)) < \
+                self.getHandStrength(self.getStrongestHandFromHand(hand2)):
+            return True
+        return False
+
+
+#Returns the best weakest hand that the list of vertain hands has that beats the hand to beat
+    def getBestWeakestHandToAnnounce(self,listOfCertainHands,handToBeat):
+        for hand in listOfCertainHands:
+            if self.getHandStrength(hand) > self.getHandStrength(handToBeat):
+                return hand
+        return ([()])
+p = Poker()
+
+print p.getBestWeakestHandToAnnounce(p.myCertainHands([(6,2),(7,3)]),[(6,1)])
+
+
+
