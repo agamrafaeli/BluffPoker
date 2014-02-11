@@ -6,10 +6,11 @@ from poker import Poker
 
 class Game:
 
-	def __init__(self,playerArr,writeDebugMessages):
+	def __init__(self,playerArr,debugMessage,roundStats):
 		# STARTING GAME
 		self.pokerRules = Poker()
-		self.writeDebugMessages = writeDebugMessages
+		self.writeDebugMessages = debugMessage
+		self.roundStats = roundStats
 
 		# CREATING PLAYERS
 		playerFactory = pokerPlayerFactory()
@@ -26,25 +27,27 @@ class Game:
 		playerOrder = []
 		for player in self.players:
 			playerOrder.append(player.name)
-		print "PLAYER ORDER WILL BE "+str(playerOrder)
+		self.debugMessage("PLAYER ORDER WILL BE "+str(playerOrder))
 
+	def startGame(self):
 
 		# ACTUAL GAMEPLAY
 		roundNum = 0
 		while self.playersLeftForGame():
 			startingPlayerIndex = roundNum % len(self.players)
-			print "**********************************"
-			print "************ROUND "+str(roundNum)+"***************"
-			self.printRoundStats()
-			print "**********************************"
+			if self.roundStats:
+				print "**********************************"
+				print "************ROUND "+str(roundNum)+"***************"
+				self.printRoundStats()
+				print "**********************************"
 			self.playSingleRound(startingPlayerIndex)
 			roundNum += 1
 
 
 		for player in self.players:
 			if player.cardsLeft > 0:
-				print "THE WINNER IS "+player.name
-				break
+				self.debugMessage("THE WINNER IS "+player.name)
+				return player.name
 
 	def printRoundStats(self):
 		printLen = ""
@@ -64,13 +67,24 @@ class Game:
 
 		self.dealCards()
 
+		for player in self.players:
+			player.calibrateStrategy(self)
+
 		self.currentAnnouncedHand=[]
 
 		self.announcingPlayerIndex = startingPlayerIndex
+
 		stillAnnouncing = True
 		while stillAnnouncing:
+
+			#Get the next player that is still in the game to announce
+			while self.players[self.announcingPlayerIndex].cardsLeft == 0:
+					self.announcingPlayerIndex += 1
+					self.announcingPlayerIndex %= len(self.players)
+
 			#ANNOUNCEMENT
 			self.currentAnnouncedHand = self.players[self.announcingPlayerIndex].announce(self)
+
 			self.debugMessage(self.players[self.announcingPlayerIndex].name+" has announced: "+str(self.currentAnnouncedHand))
 
 			self.firstChallenger = True
@@ -89,8 +103,6 @@ class Game:
 			if stillAnnouncing:
 				#Get the index for the next player
 				self.announcingPlayerIndex = (self.announcingPlayerIndex + 1) % len(self.players)
-				while self.players[self.announcingPlayerIndex].cardsLeft == 0:
-					self.announcingPlayerIndex = (self.announcingPlayerIndex + 1) % len(self.players)
 
 		cardsOnTable = self.getNumCardsOnTable()
 
@@ -111,6 +123,8 @@ class Game:
 		for player in self.players:
 			player.resetSettings()
 
+
+
 	def debugMessage(self,msg):
 		if self.writeDebugMessages:
 			print msg
@@ -121,6 +135,7 @@ class Game:
 		# DEALING CARDS
 		for player in self.players:
 			player.cardsInHand = []
+			player.playersHand = []
 			for i in xrange(player.cardsLeft):
 				player.recieveCard(theDeck.dealCard())
 			self.debugMessage(player.name+"'s cards are:\t"+str(player.cardsInHand))

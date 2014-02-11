@@ -1,6 +1,10 @@
 __author__ = 'aliveanu'
 from deck import Deck
 class Poker:
+
+    def __init__(self):
+        self.allHandOptions = self.initOptions()
+
     def initOptions(self):
         handsOptions=[]
         theDeck = Deck()
@@ -60,8 +64,8 @@ class Poker:
             secondPairOptions.remove(firstPair)
             for secondPair in secondPairOptions:
                 singleDoubleTemp = []
-                singleDoubleTemp.extend(firstPair)
                 singleDoubleTemp.extend(secondPair)
+                singleDoubleTemp.extend(firstPair)
                 doublePairList.append(singleDoubleTemp)
         return doublePairList
 
@@ -75,11 +79,11 @@ class Poker:
         fullHouseList =[]
         for pair in pairOptions:
             for triple in tripleOptions:
-                if pair[0] == triple[0]:
+                if pair[0][0] == triple[0][0]:
                     continue
                 singleFullHouseTuple = []
-                singleFullHouseTuple.extend(pair)
                 singleFullHouseTuple.extend(triple)
+                singleFullHouseTuple.extend(pair)
                 fullHouseList.append(singleFullHouseTuple)
         return fullHouseList
 
@@ -88,11 +92,6 @@ class Poker:
         for num in numbersInDeck:
             foursomeList.append([(num,4)])
         return foursomeList
-
-
-
-    def initHandsOptions(self):
-        return self.initOptions()
 
     def printHandOptions(self):
         print self.initOptions()
@@ -116,8 +115,8 @@ class Poker:
 
     def myCertainHands(self,hand):
         certainHandsList = []
-        for optionalHand in self.initHandsOptions():
-            if (self.standOff(hand,optionalHand)):
+        for optionalHand in self.allHandOptions:
+            if self.standOff(hand,optionalHand):
                 certainHandsList.append(optionalHand)
         return certainHandsList
 
@@ -129,7 +128,7 @@ class Poker:
 
     def myOptionalHands(self,hand):
         optionalHandsList = []
-        for optionalHand in self.initHandsOptions():
+        for optionalHand in self.allHandOptions:
             if (self.isOptionalHand(hand,optionalHand)):
                 optionalHandsList.append(optionalHand)
         return optionalHandsList
@@ -137,13 +136,13 @@ class Poker:
 #returns the actual possible strongest hand
     def getStrongestHandFromHand(self,hand):
         handCertainHands = self.myCertainHands(hand)
-        return handCertainHands[len(handCertainHands)-1]
+        return handCertainHands[-1]
 
 
 #return int value (strength) of the hand
     def getHandStrength(self,hand):
         count = 1
-        for handToCheck in self.initHandsOptions():
+        for handToCheck in self.allHandOptions:
             if hand==handToCheck:
                 return count
             count += 1
@@ -157,6 +156,12 @@ class Poker:
             return True
         return False
 
+    def equalHands(self,hand1,hand2):
+        hand1Power = self.getHandStrength(self.getStrongestHandFromHand(hand1))
+        hand2Power = self.getHandStrength(self.getStrongestHandFromHand(hand2))
+        if  hand1Power == hand2Power:
+            return True
+        return False
 
 #Returns the best weakest hand that the list of vertain hands has that beats the hand to beat
     def getBestWeakestHandToAnnounce(self,listOfCertainHands,handToBeat):
@@ -164,7 +169,5 @@ class Poker:
             if self.getHandStrength(hand) > self.getHandStrength(handToBeat):
                 return hand
         return []
-
-
 
 
