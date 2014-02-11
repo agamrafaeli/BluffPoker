@@ -32,16 +32,16 @@ class Game:
 	def startGame(self):
 
 		# ACTUAL GAMEPLAY
-		roundNum = 0
+		self.roundNum = 0
 		while self.playersLeftForGame():
-			startingPlayerIndex = roundNum % len(self.players)
+			startingPlayerIndex = self.roundNum % len(self.players)
 			if self.roundStats:
 				print "**********************************"
 				print "************ROUND "+str(roundNum)+"***************"
 				self.printRoundStats()
 				print "**********************************"
 			self.playSingleRound(startingPlayerIndex)
-			roundNum += 1
+			self.roundNum += 1
 
 
 		for player in self.players:
@@ -104,14 +104,14 @@ class Game:
 				#Get the index for the next player
 				self.announcingPlayerIndex = (self.announcingPlayerIndex + 1) % len(self.players)
 
-		cardsOnTable = self.getNumCardsOnTable()
+
 
 
 		self.debugMessage("There will be a standoff now between:")
 		self.debugMessage("Announcer:\t"+self.players[self.announcingPlayerIndex].name)
 		self.debugMessage("Challenger:\t"+self.players[challengingPlayerIndex].name)
 		self.debugMessage("Hand:\t"+str(self.currentAnnouncedHand))
-		if self.pokerRules.standOff(cardsOnTable,self.currentAnnouncedHand):
+		if self.pokerRules.standOff(self.cardsOnTable,self.currentAnnouncedHand):
 			#STANDOFF!!
 			self.players[challengingPlayerIndex].cardsLeft -= 1
 			self.debugMessage("The hand was on the table")
@@ -133,17 +133,20 @@ class Game:
 		theDeck = Deck()
 
 		# DEALING CARDS
+		counter = 0
 		for player in self.players:
 			player.cardsInHand = []
 			player.playersHand = []
 			for i in xrange(player.cardsLeft):
 				player.recieveCard(theDeck.dealCard())
+				counter += 1
 			self.debugMessage(player.name+"'s cards are:\t"+str(player.cardsInHand))
 
-	def getNumCardsOnTable(self):
 		cardsOnTable = []
+		self.numCardsOnTable = 0
 		for player in self.players:
 			for cardFromPlayer in player.playersHand:
+				self.numCardsOnTable += cardFromPlayer[1]
 				existOnTable = False
 				for cardOnTable in cardsOnTable:
 					if cardFromPlayer[0] == cardOnTable[0]:
@@ -152,7 +155,12 @@ class Game:
 
 				if not existOnTable:
 					cardsOnTable.append(cardFromPlayer)
-		return cardsOnTable
+
+		self.cardsOnTable = cardsOnTable
+
+
+	def getNumCardsOnTable(self):
+		return self.numCardsOnTable
 
 	def getNumOfCardsInPlay(self):
 		numOfCardsInPlay = 0

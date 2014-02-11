@@ -8,7 +8,7 @@ class pokerPlayerFactory(object):
 		if playerType == "BIG_MOUTH": 			return bigMouthPlayer(name)
 		if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
 		if playerType == "HUMAN":				return humanPlayer(name)
-	# if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
+		if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
 	# if playerType == "LEARNING_PLAYER":		return learningPlayer(name)
 
 
@@ -79,7 +79,6 @@ class ultraConservativePlayer(pokerPlayer):
 		if self.myCertainHands == [] and game.firstChallenger:
 			return True
 		highestAvailableHand = self.myCertainHands[-1]
-
 		if game.pokerRules.handStandoff(highestAvailableHand,handAnnounced) or \
 			game.pokerRules.equalHands(highestAvailableHand,handAnnounced):
 			if game.firstChallenger:
@@ -130,7 +129,6 @@ class bigMouthPlayer(pokerPlayer):
 
 	def __init__(self,name):
 		super(bigMouthPlayer,self).__init__(name)
-		self.challengedCounter = 0
 
 	def announce(self,game):
 
@@ -154,7 +152,7 @@ class bigMouthPlayer(pokerPlayer):
 class humanPlayer(pokerPlayer):
 
 	def __init(self,name):
-		super(bigMouthPlayer,self).__init__(name)
+		super(humanPlayer,self).__init__(name)
 
 	def announce(self,game):
 		self.printStats(game)
@@ -219,24 +217,65 @@ class humanPlayer(pokerPlayer):
 
 class heuristicPlayer(pokerPlayer):
 
+	def __init__(self,name):
+		super(heuristicPlayer,self).__init__(name)
+		self.cumulative = 0.0
+
 	def announce(self,game):
-		return []
+		currentAnnouncedHand = game.currentAnnouncedHand
+		announcementToGive = game.pokerRules.getBestWeakestHandToAnnounce(self.myCertainHands,currentAnnouncedHand)
+		if announcementToGive == []:
+			announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand\
+					(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,1,self.playersHand)
+			if announcementToGive==[]:
+				announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand \
+					(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,2,self.playersHand)
+				if announcementToGive==[]:
+					announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand \
+							(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,3,self.playersHand)
+
+		return announcementToGive
 
 	def challenge(self,game):
+
+		self.cumulative += 0.025
 
 		numCardsInAnnouncedHand = 0
 		for condition in game.currentAnnouncedHand:
 			numCardsInAnnouncedHand += condition[1]
 
-		numCardsAnnouncingPlayerHas = len(game.players[game.announcingPlayerIndex])
+		numCardsAnnouncingPlayerHas = len(game.players[game.announcingPlayerIndex].cardsInHand)
 		numCardsIHave = len(self.cardsInHand)
+		numCardsOnTable = game.getNumCardsOnTable()
+		numUnknownCards = numCardsOnTable - numCardsIHave - numCardsAnnouncingPlayerHas
+		numCardsIDontSupport = game.pokerRules.cardsMissingToSupportHand(self.playersHand,game.currentAnnouncedHand)
+
 
 		#If the current hand requires more cards than are in play then challenges
 		if numCardsInAnnouncedHand > game.getNumOfCardsInPlay():
 			return True
 
-		#If announced hand requires more cards than announcing player has
-		#	and
+		#If announcing player doesn't have enough cards to support the announced hand
+		if numCardsAnnouncingPlayerHas + numUnknownCards < numCardsIDontSupport:
+			return True
 
+
+		probability = 0;
+
+		if numCardsAnnouncingPlayerHas + numUnknownCards == numCardsIDontSupport:
+			probability = 0.3
+			# print game.roundNum
+
+		# if numCardsIHave > numCardsAnnouncingPlayerHas:
+		# 	probability += (0.07*numCardsIDontSupport)
+
+		if random.random() <= probability + self.cumulative:
+			return True
+		return False
+
+
+
+	def resetSettings(self):
+		self.cumulative = 0.0
 
 
