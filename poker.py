@@ -121,7 +121,7 @@ class Poker:
                 certainHandsList.append(optionalHand)
         return certainHandsList
 
-    def isOptionalHAnd(self,hand,optionalHand):
+    def isOptionalHand(self,hand,optionalHand):
         for cardInHand in hand:
             for cardInOptionalHand in optionalHand:
                 if cardInHand[0]==cardInOptionalHand[0]:
@@ -130,9 +130,8 @@ class Poker:
     def myOptionalHands(self,hand):
         optionalHandsList = []
         for optionalHand in self.initHandsOptions():
-            if (self.isOptionalHAnd(hand,optionalHand)):
+            if (self.isOptionalHand(hand,optionalHand)):
                 optionalHandsList.append(optionalHand)
-        print optionalHandsList
         return optionalHandsList
 
 #returns the actual possible strongest hand

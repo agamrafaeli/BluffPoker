@@ -5,7 +5,7 @@ from poker import Poker
 class pokerPlayerFactory(object):
 	def newPokerPlayer(self,name,playerType):
 		if playerType == "CONSERVATIVE": 		return ultraConservativePlayer(name)
-		if playerType == "BIG_MOUTH": 			return bigMouthPlayer(name)
+		# if playerType == "BIG_MOUTH": 			return bigMouthPlayer(name)
 		if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
 		if playerType == "HUMAN":				return humanPlayer(name)
 		# if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
@@ -205,3 +205,5 @@ class humanPlayer(pokerPlayer):
 			   if value == 1:
 					   return True
 			   return False
+
+class
