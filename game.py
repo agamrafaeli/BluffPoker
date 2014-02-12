@@ -124,17 +124,20 @@ class Game:
 		self.debugMessage("Announcer:\t"+self.players[self.announcingPlayerIndex].name)
 		self.debugMessage("Challenger:\t"+self.players[challengingPlayerIndex].name)
 		self.debugMessage("Hand:\t"+str(self.currentAnnouncedHand))
-		if self.pokerRules.standOff(self.cardsOnTable,self.currentAnnouncedHand):
-			#STANDOFF!!
+
+		goodChallenge = self.pokerRules.standOff(self.cardsOnTable,self.currentAnnouncedHand)
+
+		for player in self.players:
+			player.learn(self,goodChallenge)
+			player.resetSettings()
+
+		if goodChallenge:
 			self.players[challengingPlayerIndex].cardsLeft -= 1
-			self.debugMessage("The hand was on the table")
 		else:
 			self.players[self.announcingPlayerIndex].cardsLeft -= 1
-			self.debugMessage("The bluff was exposed")
 
 		# reset player settings
-		for player in self.players:
-			player.resetSettings()
+
 
 
 

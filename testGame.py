@@ -3,44 +3,62 @@ from game import Game
 from poker import Poker
 from deck import Deck
 import random, sys
+import pickle
+import learning
 
 
-def playGame(players):
+def playGame():
+
+	players = []
+	players.append(["learning","LEARNING_PLAYER"])
+	for i in xrange(3):
+		newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
+		newPlayerName = "Other Player"
+		players.append([newPlayerName,newPlayerType])
+
 	scores = dict()
 	for player in players:
 		scores[player[0]] = 0
 
-	for i in xrange(int(sys.argv[1])):
+	for i in xrange(1,int(sys.argv[1])+1):
+
 		theGame = Game(players,False,False)
 		winner = theGame.startGame()
 		scores[winner] += 1
-	printLine = "Iterator:"+str(i)+"\t"
-	for key in scores:
-		percent = int((float(scores[key]) / i) * 100)
-		printLine += key+": "+str(percent)+"%\t"
-	print printLine
+		if i%50 == 0:
+			printLine = "Iterator:"+str(i)+"\t"
+			for key in scores:
+				percent = '{percent:.2%}'.format(percent=(float(scores[key]) / float(i)))
+				printLine += key+": "+percent+"\t"
+			print printLine
+			learning.updateLearning(50)
+			for player in players:
+				scores[player[0]] = 0
 
-players = []
-players.append(["Conservative1","CONSERVATIVE"])
-players.append(["Heuristic","HEURISTIC_PLAYER"])
-# players.append(["Conservative2","CONSERVATIVE"])
-# players.append(["Conservative3","CONSERVATIVE"])
+		players = []
+		players.append(["learning","LEARNING_PLAYER"])
+		for i in xrange(3):
+			newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
+			newPlayerName = "Player "+str(i)
+			players.append([newPlayerName,newPlayerType])
+
+learning.initLearning()
+learning.totalGamesLearned()
+playGame()
+learning.updateLearning(int(sys.argv[1]))
+
+# players = []
+# # players.append(["Conservative1","CONSERVATIVE"])
+# # players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
+# players.append(["Big Mouth","BIG_MOUTH"])
+# players.append(["Heuristic","HEURISTIC_PLAYER"])
+# playGame(players)
+
+# players = []
+# # players.append(["Conservative1","CONSERVATIVE"])
 # players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-
-playGame(players)
-
-players = []
-# players.append(["Conservative1","CONSERVATIVE"])
-# players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-players.append(["Big Mouth","BIG_MOUTH"])
-players.append(["Heuristic","HEURISTIC_PLAYER"])
-playGame(players)
-
-players = []
-# players.append(["Conservative1","CONSERVATIVE"])
-players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-players.append(["Heuristic","HEURISTIC_PLAYER"])
-playGame(players)
+# players.append(["Heuristic","HEURISTIC_PLAYER"])
+# playGame(players)
 
 # players = []
 # players.append(["Conservative1","CONSERVATIVE"])

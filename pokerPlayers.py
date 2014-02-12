@@ -1,5 +1,7 @@
 import random
 from poker import Poker
+import pickle
+import learning
 
 
 class pokerPlayerFactory(object):
@@ -9,7 +11,7 @@ class pokerPlayerFactory(object):
 		if playerType == "CAUTIOUS_BLUFFER":	return cautiousBlufferPlayer(name)
 		if playerType == "HUMAN":				return humanPlayer(name)
 		if playerType == "HEURISTIC_PLAYER":	return heuristicPlayer(name)
-	# if playerType == "LEARNING_PLAYER":		return learningPlayer(name)
+		if playerType == "LEARNING_PLAYER":		return learningPlayer(name)
 
 
 class pokerPlayer(object):
@@ -41,7 +43,7 @@ class pokerPlayer(object):
 		self.myOptionalHands = game.pokerRules.myOptionalHands(self.playersHand)
 		self.playersHand.sort()
 
-	def learn(self,game): pass
+	def learn(self,game,goodChallenge): pass
 
 	def resetSettings(self): pass
 
@@ -293,5 +295,70 @@ class heuristicPlayer(pokerPlayer):
 
 	def resetSettings(self):
 		self.cumulative = 0.0
+
+
+class learningPlayer(pokerPlayer):
+	def __init__(self,name):
+		super(learningPlayer,self).__init__(name)
+
+
+	def calibrateStrategy(self,game):
+		super(learningPlayer,self).calibrateStrategy(game)
+		numOfHands = len(game.pokerRules.allHandOptions)
+		self.allHandsScoreArray = [0] * numOfHands
+		for handIndex in xrange(numOfHands):
+			handIterator = game.pokerRules.allHandOptions[handIndex]
+			handScore = game.pokerRules.cardsMissingToSupportHand(self.playersHand,handIterator)
+			self.allHandsScoreArray[handIndex] = handScore
+
+
+
+	def announce(self,game):
+		currentAnnouncedHand = game.currentAnnouncedHand
+
+		if currentAnnouncedHand == []:
+			currentAnnouncedHandPower = -1
+			handToAnnounce = game.pokerRules.allHandOptions[0]
+		else:
+			currentAnnouncedHandPower = game.pokerRules.getHandStrength(currentAnnouncedHand) - 1
+			handToAnnounce = currentAnnouncedHand
+
+		numOfAllHands = len(game.pokerRules.allHandOptions)
+		minIndex = currentAnnouncedHandPower
+		minDistance = 6
+		for handIteratorIndex in xrange(currentAnnouncedHandPower+1,numOfAllHands):
+			if self.allHandsScoreArray[handIteratorIndex] < minDistance:
+				minDistance = self.allHandsScoreArray[handIteratorIndex]
+				minIndex = handIteratorIndex
+				handToAnnounce = game.pokerRules.allHandOptions[minIndex]
+
+		return handToAnnounce
+
+	def learn(self,game,goodChallenge):
+		currentHand = game.currentAnnouncedHand
+		currentHandStrength = game.pokerRules.getHandStrength(currentHand) - 1
+		cardsAnnouncerHas = game.players[game.announcingPlayerIndex].cardsLeft - 1
+		unknownCards = game.getNumCardsOnTable() - self.cardsLeft - 1
+		if unknownCards > 15:
+			print game.getNumCardsOnTable()
+			print game.players[game.announcingPlayerIndex].cardsLeft
+			print self.cardsLeft
+		missingCards = game.pokerRules.cardsMissingToSupportHand(self.playersHand,currentHand) - 1
+		learning.updateState(currentHandStrength,cardsAnnouncerHas,unknownCards,missingCards,goodChallenge)
+
+
+	def challenge(self,game):
+		currentHand = game.currentAnnouncedHand
+		currentHandStrength = game.pokerRules.getHandStrength(currentHand) - 1
+		cardsAnnouncerHas = game.players[game.announcingPlayerIndex].cardsLeft - 1
+		unknownCards = game.getNumCardsOnTable() - cardsAnnouncerHas - self.cardsLeft - 1
+		missingCards = game.pokerRules.cardsMissingToSupportHand(self.playersHand,currentHand) - 1
+
+		change = learning.getStateChange(currentHandStrength,cardsAnnouncerHas,unknownCards,missingCards)
+
+		probability = 0.2
+		probability += change
+
+		return random.random() <= probability
 
 
