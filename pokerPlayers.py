@@ -61,9 +61,6 @@ class pokerPlayer(object):
 
 		self.cardsInHand.append(card)
 
-	def lostGame(self):
-		self.cardsLeft -= 1
-
 class ultraConservativePlayer(pokerPlayer):
 
 	#works with certain hands
@@ -120,8 +117,6 @@ class cautiousBlufferPlayer(pokerPlayer):
 			probability = probability * 0.1
 		randomNum = random.random()
 
-		game.debugMessage("probability to challenge now is: "+str(probability))
-		game.debugMessage("random number is: "+str(randomNum))
 		return  randomNum <= probability
 
 	def resetSettings(self):
@@ -270,7 +265,7 @@ class heuristicPlayer(pokerPlayer):
 
 
 		#If the current hand requires more cards than are in play then challenges
-		if numCardsInAnnouncedHand > game.getNumOfCardsInPlay():
+		if numCardsInAnnouncedHand > game.getNumCardsOnTable():
 			return True
 
 		#If announcing player doesn't have enough cards to support the announced hand
@@ -340,6 +335,7 @@ class learningPlayer(pokerPlayer):
 		cardsAnnouncerHas = game.players[game.announcingPlayerIndex].cardsLeft - 1
 		unknownCards = game.getNumCardsOnTable() - self.cardsLeft - 1
 		if unknownCards > 15:
+			print "###############################"
 			print game.getNumCardsOnTable()
 			print game.players[game.announcingPlayerIndex].cardsLeft
 			print self.cardsLeft

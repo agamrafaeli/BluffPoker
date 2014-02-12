@@ -7,22 +7,17 @@ import pickle
 import learning
 
 
-def playGame():
+def playGame(players,amountOfGames):
 
-	players = []
-	players.append(["learning","LEARNING_PLAYER"])
-	for i in xrange(3):
-		newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
-		newPlayerName = "Other Player"
-		players.append([newPlayerName,newPlayerType])
+	learning.initLearning()
 
 	scores = dict()
 	for player in players:
 		scores[player[0]] = 0
 
-	for i in xrange(1,int(sys.argv[1])+1):
+	for i in xrange(1,amountOfGames+1):
 
-		theGame = Game(players,False,False)
+		theGame = Game(players)
 		winner = theGame.startGame()
 		scores[winner] += 1
 		if i%50 == 0:
@@ -31,73 +26,55 @@ def playGame():
 				percent = '{percent:.2%}'.format(percent=(float(scores[key]) / float(i)))
 				printLine += key+": "+percent+"\t"
 			print printLine
-			learning.updateLearning(50)
+
+def playRandomLearningGames(amountOfGames,updateEvery):
+
+	learning.initLearning()
+
+	players = []
+	players.append(["Learning","LEARNING_PLAYER"])
+	for i in xrange(3):
+		newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
+		players.append(["Other Player",newPlayerType])
+
+	scores = dict()
+	scores["Learning"] = 0
+	scores["Other Player"] = 0
+
+	for i in xrange(1,amountOfGames+1):
+
+		players = []
+		players.append(["Learning","LEARNING_PLAYER"])
+		for j in xrange(3):
+			newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
+			players.append(["Other Player",newPlayerType])
+
+		theGame = Game(players)
+		winner = theGame.startGame()
+		scores[winner] += 1
+		if i%updateEvery == 0:
+			printLine = "Iterator:"+str(i)+"\t"
+			for key in scores:
+				percent = '{percent:.2%}'.format(percent=(float(scores[key]) / float(updateEvery)))
+				printLine += key+": "+percent+"\t"
+			print printLine
+
+			learning.updateLearning(updateEvery)
+
+			scores = dict()
 			for player in players:
 				scores[player[0]] = 0
 
-		players = []
-		players.append(["learning","LEARNING_PLAYER"])
-		for i in xrange(3):
-			newPlayerType = random.choice(["CONSERVATIVE","BIG_MOUTH","CAUTIOUS_BLUFFER","HEURISTIC_PLAYER"])
-			newPlayerName = "Player "+str(i)
-			players.append([newPlayerName,newPlayerType])
+amountOfGames = int(sys.argv[1])
+updateEvery = int(sys.argv[2])
 
-learning.initLearning()
-learning.totalGamesLearned()
-playGame()
-learning.updateLearning(int(sys.argv[1]))
+playRandomLearningGames(amountOfGames, updateEvery)
 
 # players = []
 # # players.append(["Conservative1","CONSERVATIVE"])
-# # players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-# players.append(["Big Mouth","BIG_MOUTH"])
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# playGame(players)
-
-# players = []
-# # players.append(["Conservative1","CONSERVATIVE"])
+# players.append(["Learning","LEARNING_PLAYER"])
+# # players.append(["Conservative2","CONSERVATIVE"])
+# # players.append(["Conservative3","CONSERVATIVE"])
 # players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# playGame(players)
 
-# players = []
-# players.append(["Conservative1","CONSERVATIVE"])
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# players.append(["Big Mouth","BIG_MOUTH"])
-# playGame(players)
-
-# players = []
-# players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# players.append(["Big Mouth","BIG_MOUTH"])
-# playGame(players)
-
-# players = []
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# players.append(["Cautious Bluffer1","CAUTIOUS_BLUFFER"])
-# playGame(players)
-# # players.append(["Cautious Bluffer2","CAUTIOUS_BLUFFER"])
-
-# players = []
-# players.append(["Heuristic","HEURISTIC_PLAYER"])
-# players.append(["Big Mouth","BIG_MOUTH"])
-# playGame(players)
-
-
-
-# cardsMissingToSupportHand tests
-# for j in xrange(10):
-# 	p = Poker()
-# 	deck = Deck()
-# 	factory = pokerPlayerFactory()
-# 	player = factory.newPokerPlayer("John","BIG_MOUTH")
-# 	for i in xrange(random.randint(2,20)):
-# 		player.recieveCard(deck.dealCard())
-# 	group = player.playersHand
-# 	hand = p.allHandOptions[random.randint(0,len(p.allHandOptions))]
-# 	missing = p.cardsMissingToSupportHand(group,hand)
-# 	print "******************************"
-# 	print "Group:\t\t"+str(group)
-# 	print "Hand:\t\t"+str(hand)
-# 	print "Missing:\t"+str(missing)
-
+# playGame(players,amountOfGames)

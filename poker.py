@@ -97,9 +97,6 @@ class Poker:
 			foursomeList.append([(num,4)])
 		return foursomeList
 
-	def printHandOptions(self):
-		print self.initOptions()
-
 	def standOff(self,cardsOnTable,announcement):
 
 		for combination in announcement:

@@ -6,11 +6,9 @@ from poker import Poker
 
 class Game:
 
-	def __init__(self,playerArr,debugMessage,roundStats):
+	def __init__(self,playerArr):
 		# STARTING GAME
 		self.pokerRules = Poker()
-		self.writeDebugMessages = debugMessage
-		self.roundStats = roundStats
 
 		# CREATING PLAYERS
 		playerFactory = pokerPlayerFactory()
@@ -27,7 +25,6 @@ class Game:
 		playerOrder = []
 		for player in self.players:
 			playerOrder.append(player.name)
-		self.debugMessage("PLAYER ORDER WILL BE "+str(playerOrder))
 
 	def startGame(self):
 
@@ -35,25 +32,13 @@ class Game:
 		self.roundNum = 0
 		while self.playersLeftForGame():
 			startingPlayerIndex = self.roundNum % len(self.players)
-			if self.roundStats:
-				print "**********************************"
-				print "************ROUND "+str(roundNum)+"***************"
-				self.printRoundStats()
-				print "**********************************"
 			self.playSingleRound(startingPlayerIndex)
 			self.roundNum += 1
 
-
+		# FINDING THE WINNER
 		for player in self.players:
 			if player.cardsLeft > 0:
-				self.debugMessage("THE WINNER IS "+player.name)
 				return player.name
-
-	def printRoundStats(self):
-		printLen = ""
-		for player in self.players:
-			printLen += player.name+":"+str(player.cardsLeft)+"\t"
-		print printLen
 
 	def playersLeftForGame(self):
 		playersWithCards = 0
@@ -62,19 +47,17 @@ class Game:
 				playersWithCards += 1
 		return playersWithCards > 1
 
-
 	def playSingleRound(self,startingPlayerIndex):
 
+		# ROUND INIT
 		self.dealCards()
-
 		for player in self.players:
 			player.calibrateStrategy(self)
-
 		self.currentAnnouncedHand=[]
-
 		self.announcingPlayerIndex = startingPlayerIndex
-
 		stillAnnouncing = True
+
+		# ROUND ACTUAL PLAY
 		while stillAnnouncing:
 
 			#Get the next player that is still in the game to announce
@@ -82,68 +65,49 @@ class Game:
 					self.announcingPlayerIndex += 1
 					self.announcingPlayerIndex %= len(self.players)
 
+
 			#ANNOUNCEMENT
-			previousHand = self.currentAnnouncedHand
 			self.currentAnnouncedHand = self.players[self.announcingPlayerIndex].announce(self)
-			nextHand = self.currentAnnouncedHand
-
-			previousStrength = self.pokerRules.getHandStrength(previousHand)
-			nextStrength = self.pokerRules.getHandStrength(nextHand)
-			if nextStrength <= previousStrength:
-				print "**************************"
-				print "previous:\t"+str(previousHand)
-				print "next:\t"+str(nextHand)
-				print "player:\t"+self.players[self.announcingPlayerIndex].name
-			self.debugMessage(self.players[self.announcingPlayerIndex].name+" has announced: "+str(self.currentAnnouncedHand))
-
 			self.firstChallenger = True
+
 			for increment in xrange(1,len(self.players)):
 				challengingPlayerIndex = (self.announcingPlayerIndex + increment) % len(self.players)
+
 				if self.players[challengingPlayerIndex].cardsLeft == 0:
 					#This player is not in the game anymore
 					continue
 
 				if self.currentAnnouncedHand == [(14,4)]:
+					# Highest available hand
 					stillAnnouncing = False
+					break
 
 				if self.players[challengingPlayerIndex].challenge(self):
 					#Challenge occured
 					stillAnnouncing = False
-					self.debugMessage(self.players[challengingPlayerIndex].name+" has decided to challenge!!!!!!!")
 					break
-				self.debugMessage(self.players[challengingPlayerIndex].name+" has decided not to challenge")
+
 				self.firstChallenger = False
+
+			#Get the index for the next player
 			if stillAnnouncing:
-				#Get the index for the next player
 				self.announcingPlayerIndex = (self.announcingPlayerIndex + 1) % len(self.players)
 
 
-
-
-		self.debugMessage("There will be a standoff now between:")
-		self.debugMessage("Announcer:\t"+self.players[self.announcingPlayerIndex].name)
-		self.debugMessage("Challenger:\t"+self.players[challengingPlayerIndex].name)
-		self.debugMessage("Hand:\t"+str(self.currentAnnouncedHand))
-
+		# STANDOFF
 		goodChallenge = self.pokerRules.standOff(self.cardsOnTable,self.currentAnnouncedHand)
 
+
+		# PLAYERS LEARN AND RECALIBERATE
 		for player in self.players:
 			player.learn(self,goodChallenge)
 			player.resetSettings()
 
+		# UPDATE PLAYERS CARD QUOTA AFTER STANDOFF
 		if goodChallenge:
-			self.players[challengingPlayerIndex].cardsLeft -= 1
-		else:
 			self.players[self.announcingPlayerIndex].cardsLeft -= 1
-
-		# reset player settings
-
-
-
-
-	def debugMessage(self,msg):
-		if self.writeDebugMessages:
-			print msg
+		else:
+			self.players[challengingPlayerIndex].cardsLeft -= 1
 
 	def dealCards(self):
 		theDeck = Deck()
@@ -156,8 +120,8 @@ class Game:
 			for i in xrange(player.cardsLeft):
 				player.recieveCard(theDeck.dealCard())
 				counter += 1
-			self.debugMessage(player.name+"'s cards are:\t"+str(player.cardsInHand))
 
+		# INITING TABLE VARIABLES
 		cardsOnTable = []
 		self.numCardsOnTable = 0
 		for player in self.players:
@@ -174,12 +138,6 @@ class Game:
 
 		self.cardsOnTable = cardsOnTable
 
-
 	def getNumCardsOnTable(self):
 		return self.numCardsOnTable
 
-	def getNumOfCardsInPlay(self):
-		numOfCardsInPlay = 0
-		for player in self.players:
-			numOfCardsInPlay += len(player.cardsInHand)
-		return numOfCardsInPlay
