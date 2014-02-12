@@ -83,8 +83,17 @@ class Game:
 					self.announcingPlayerIndex %= len(self.players)
 
 			#ANNOUNCEMENT
+			previousHand = self.currentAnnouncedHand
 			self.currentAnnouncedHand = self.players[self.announcingPlayerIndex].announce(self)
+			nextHand = self.currentAnnouncedHand
 
+			previousStrength = self.pokerRules.getHandStrength(previousHand)
+			nextStrength = self.pokerRules.getHandStrength(nextHand)
+			if nextStrength <= previousStrength:
+				print "**************************"
+				print "previous:\t"+str(previousHand)
+				print "next:\t"+str(nextHand)
+				print "player:\t"+self.players[self.announcingPlayerIndex].name
 			self.debugMessage(self.players[self.announcingPlayerIndex].name+" has announced: "+str(self.currentAnnouncedHand))
 
 			self.firstChallenger = True
@@ -93,6 +102,10 @@ class Game:
 				if self.players[challengingPlayerIndex].cardsLeft == 0:
 					#This player is not in the game anymore
 					continue
+
+				if self.currentAnnouncedHand == [(14,4)]:
+					stillAnnouncing = False
+
 				if self.players[challengingPlayerIndex].challenge(self):
 					#Challenge occured
 					stillAnnouncing = False

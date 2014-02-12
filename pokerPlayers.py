@@ -39,6 +39,7 @@ class pokerPlayer(object):
 	def calibrateStrategy(self,game):
 		self.myCertainHands = game.pokerRules.myCertainHands(self.playersHand)
 		self.myOptionalHands = game.pokerRules.myOptionalHands(self.playersHand)
+		self.playersHand.sort()
 
 	def learn(self,game): pass
 
@@ -221,23 +222,38 @@ class heuristicPlayer(pokerPlayer):
 		super(heuristicPlayer,self).__init__(name)
 		self.cumulative = 0.0
 
+
+	def calibrateStrategy(self,game):
+		super(heuristicPlayer,self).calibrateStrategy(game)
+		numOfHands = len(game.pokerRules.allHandOptions)
+		self.allHandsScoreArray = [0] * numOfHands
+		for handIndex in xrange(numOfHands):
+			handIterator = game.pokerRules.allHandOptions[handIndex]
+			handScore = game.pokerRules.cardsMissingToSupportHand(self.playersHand,handIterator)
+			self.allHandsScoreArray[handIndex] = handScore
+
 	def announce(self,game):
 		currentAnnouncedHand = game.currentAnnouncedHand
-		announcementToGive = game.pokerRules.getBestWeakestHandToAnnounce(self.myCertainHands,currentAnnouncedHand)
-		if announcementToGive == []:
-			announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand\
-					(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,1,self.playersHand)
-			if announcementToGive==[]:
-				announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand \
-					(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,2,self.playersHand)
-				if announcementToGive==[]:
-					announcementToGive = game.pokerRules.findWeakestStrongestCardShortHand \
-							(self.myOptionalHands,self.myCertainHands,currentAnnouncedHand,3,self.playersHand)
 
-		return announcementToGive
+		if currentAnnouncedHand == []:
+			currentAnnouncedHandPower = -1
+			handToAnnounce = game.pokerRules.allHandOptions[0]
+		else:
+			currentAnnouncedHandPower = game.pokerRules.getHandStrength(currentAnnouncedHand) - 1
+			handToAnnounce = currentAnnouncedHand
+
+		numOfAllHands = len(game.pokerRules.allHandOptions)
+		minIndex = currentAnnouncedHandPower
+		minDistance = 6
+		for handIteratorIndex in xrange(currentAnnouncedHandPower+1,numOfAllHands):
+			if self.allHandsScoreArray[handIteratorIndex] < minDistance:
+				minDistance = self.allHandsScoreArray[handIteratorIndex]
+				minIndex = handIteratorIndex
+				handToAnnounce = game.pokerRules.allHandOptions[minIndex]
+
+		return handToAnnounce
 
 	def challenge(self,game):
-
 		self.cumulative += 0.025
 
 		numCardsInAnnouncedHand = 0

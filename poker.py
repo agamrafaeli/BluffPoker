@@ -66,13 +66,16 @@ class Poker:
 				singleDoubleTemp = []
 				singleDoubleTemp.extend(secondPair)
 				singleDoubleTemp.extend(firstPair)
+				singleDoubleTemp.sort()
 				doublePairList.append(singleDoubleTemp)
 		return doublePairList
 
 	def getAllStraightOptions(self,numbersInDeck):
 		straightList=[]
 		for firstNum in xrange(2,11):
-			straightList.append([(firstNum,1),(firstNum+1,1),(firstNum+2,1),(firstNum+3,1),(firstNum+4,1)])
+			appendStraight = [(firstNum,1),(firstNum+1,1),(firstNum+2,1),(firstNum+3,1),(firstNum+4,1)]
+			appendStraight.sort()
+			straightList.append(appendStraight)
 		return straightList
 
 	def getAllFullHouseOptions(self,pairOptions, tripleOptions):
@@ -84,6 +87,7 @@ class Poker:
 				singleFullHouseTuple = []
 				singleFullHouseTuple.extend(triple)
 				singleFullHouseTuple.extend(pair)
+				singleFullHouseTuple.sort()
 				fullHouseList.append(singleFullHouseTuple)
 		return fullHouseList
 
@@ -177,6 +181,8 @@ class Poker:
 			for card in groupOfCards:
 				if card[0] == demand[0]:
 					demandIncrement -= card[1]
+			if demandIncrement < 0:
+				demandIncrement = 0
 			missing += demandIncrement
 		return missing
 
