@@ -277,10 +277,7 @@ class heuristicPlayer(pokerPlayer):
 
 		if numCardsAnnouncingPlayerHas + numUnknownCards == numCardsIDontSupport:
 			probability = 0.3
-			# print game.roundNum
 
-		# if numCardsIHave > numCardsAnnouncingPlayerHas:
-		# 	probability += (0.07*numCardsIDontSupport)
 
 		if random.random() <= probability + self.cumulative:
 			return True
@@ -334,11 +331,6 @@ class learningPlayer(pokerPlayer):
 		currentHandStrength = game.pokerRules.getHandStrength(currentHand) - 1
 		cardsAnnouncerHas = game.players[game.announcingPlayerIndex].cardsLeft - 1
 		unknownCards = game.getNumCardsOnTable() - self.cardsLeft - 1
-		if unknownCards > 15:
-			print "###############################"
-			print game.getNumCardsOnTable()
-			print game.players[game.announcingPlayerIndex].cardsLeft
-			print self.cardsLeft
 		missingCards = game.pokerRules.cardsMissingToSupportHand(self.playersHand,currentHand) - 1
 		learning.updateState(currentHandStrength,cardsAnnouncerHas,unknownCards,missingCards,goodChallenge)
 

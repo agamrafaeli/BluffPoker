@@ -25,31 +25,12 @@ def updateState(handNum,numOfAnnouncerHands,numOfUnknownCards,numOfMissingCards,
 	change = -0.025
 	if goodChallenge:
 		change = 0.015
-	try:
-		challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards] += change
-	except:
-		print "************************************"
-		print numOfAnnouncerHands
-		print challengeStates[handNum][numOfAnnouncerHands]
-		print numOfUnknownCards
-		print challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards]
-		print numOfMissingCards
-		print challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards]
+	challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards] += change
+
 
 def getStateChange(handNum,numOfAnnouncerHands,numOfUnknownCards,numOfMissingCards):
 	global challengeStates
-	try:
-		return challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards]
-	except:
-		print "************************************"
-		print handNum
-		print challengeStates[handNum]
-		print numOfAnnouncerHands
-		print challengeStates[handNum][numOfAnnouncerHands]
-		print numOfUnknownCards
-		print challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards]
-		print numOfMissingCards
-		print challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards]
+	return challengeStates[handNum][numOfAnnouncerHands][numOfUnknownCards][numOfMissingCards]
 
 def updateLearning(playedGames):
 	global challengeStates
